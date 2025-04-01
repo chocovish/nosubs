@@ -16,8 +16,9 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { CurrentUserAvatar } from './current-user-avatar';
-
+import { useUser } from '@/hooks/use-user';
 export function Header() {
+  const user = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -53,11 +54,11 @@ export function Header() {
             <LayoutDashboard className="w-5 h-5" />
             <span>Dashboard</span>
           </Link>
-          <Link href="/products" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+          <Link href="/dashboard/products" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
             <Package className="w-5 h-5" />
             <span>Products</span>
           </Link>
-          <Link href="/store" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+          <Link href={`/shop/${user?.id}`} className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
             <Store className="w-5 h-5" />
             <span>Store</span>
           </Link>
@@ -82,11 +83,11 @@ export function Header() {
                 <LayoutDashboard className="w-5 h-5" />
                 <span>Dashboard</span>
               </Link>
-              <Link href="/products" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+              <Link href="/dashboard/products" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
                 <Package className="w-5 h-5" />
                 <span>Products</span>
               </Link>
-              <Link href="/store" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+              <Link href={`/shop/${user?.id}`} className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
                 <Store className="w-5 h-5" />
                 <span>Store</span>
               </Link>

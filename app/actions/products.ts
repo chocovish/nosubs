@@ -16,8 +16,8 @@ export type Product = {
 };
 
 export async function getProducts(userId?: string) {
-  const session = await auth();
-  userId = userId ?? session?.user.id;
+  const user = await auth();
+  userId = userId ?? user?.id;
   if (!userId) {
     throw new Error('User not authenticated');
   }
@@ -35,8 +35,8 @@ export async function getProducts(userId?: string) {
 
 export async function createProduct(data: Omit<Product, 'id' | 'displayOrder' | 'isVisible'>) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const user = await auth();
+    if (!user?.id) {
       throw new Error('User not authenticated');
     }
 
@@ -50,7 +50,7 @@ export async function createProduct(data: Omit<Product, 'id' | 'displayOrder' | 
         ...data,
         isVisible: true,
         displayOrder,
-        userId: session.user.id
+        userId: user.id
       }
     });
     return product;

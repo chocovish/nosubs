@@ -3,7 +3,7 @@
 import Razorpay from 'razorpay';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
-import { getCurrentUser } from '@/lib/auth-helper';
+import { auth } from '@/lib/auth';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || '',
@@ -73,7 +73,7 @@ export async function verifyPayment({
     }
 
     // Get current user if logged in
-    const user = await getCurrentUser();
+    const user = await auth();
     const buyerId = user?.id || null;
 
     // Record the sale
