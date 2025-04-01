@@ -3,7 +3,7 @@
 import Razorpay from 'razorpay';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
-import { auth } from '../../lib/auth';
+import { getCurrentUser } from '@/lib/auth-helper';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || '',
@@ -27,7 +27,6 @@ export async function initializePayment(productId: string, sellerId: string, gue
     }
 
     // Create Razorpay order
-    console.log(`o_${productId}_${Date.now()}`, `o_${productId}_${Date.now()}`.length)
     const order = await razorpay.orders.create({
       amount: Math.round(product.price * 100), // Convert to smallest currency unit (paise)
       currency: 'INR',
@@ -73,25 +72,39 @@ export async function verifyPayment({
       throw new Error('Invalid payment signature');
     }
 
-    // Get session to check if user is logged in
-    const session = await auth();
-    const buyerId = session?.user?.id || null;
+    // Get current user if logged in
+    const user = await getCurrentUser();
+    const buyerId = user?.id || null;
 
     // Record the sale
     const amount = (await razorpay.payments.fetch(razorpay_payment_id)).amount;
     if (typeof amount !== 'number') {
       return 
     }
-    const sale = await prisma.sale.create({
-      data: {
-        productId,
-        sellerId,
-        buyerId,
-        amount: amount / 100,
-        razorpayId: razorpay_payment_id,
-        status: 'completed',
-      },
-    });
+
+    // Use a transaction to ensure both sale creation and balance update succeed or fail together
+    const [sale, _] = await prisma.$transaction([
+      // Create the sale record
+      prisma.sale.create({
+        data: {
+          productId,
+          sellerId,
+          buyerId,
+          amount: amount / 100,
+          razorpayId: razorpay_payment_id,
+          status: 'completed',
+        },
+      }),
+      // Update seller's balance
+      prisma.user.update({
+        where: { id: sellerId },
+        data: {
+          balance: {
+            increment: amount / 100
+          }
+        }
+      })
+    ]);
 
     // Get product details for download
     const product = await prisma.product.findUnique({

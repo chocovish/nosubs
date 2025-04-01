@@ -19,11 +19,13 @@ model User {
   email         String    @unique
   password      String
   image         String?
+  balance       Float     @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   products      Product[]
   sales         Sale[]
   purchases     Sale[]    @relation("Buyer")
+  withdrawals   Withdrawal[]
 }
 
 model Product {
@@ -54,4 +56,16 @@ model Sale {
   razorpayId   String
   status       String
   createdAt    DateTime @default(now())
+}
+
+model Withdrawal {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  amount      Float
+  status      String   @default("pending") // pending, processing, approved, rejected, completed
+  bankDetails String   // Store bank account details as JSON
+  transactionDetails String? // Store transaction details as JSON
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -5,8 +5,8 @@ import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { BrandHeader } from '@/components/brand-header';
+import { FileText, Globe, Monitor } from 'lucide-react';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -57,35 +57,17 @@ export default function Home() {
           <div className="flex-1 h-[250px] sm:h-[300px] md:h-[400px] w-full max-w-[500px] mx-auto relative">
             <div className="grid grid-cols-2 gap-3 sm:gap-4 animate-float h-full">
               <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-3 sm:p-4 transform hover:scale-105 transition-transform">
-                <Image 
-                  src="/file.svg" 
-                  alt="Digital Files" 
-                  width={32} 
-                  height={32} 
-                  className="mb-2 sm:mb-3 sm:w-10 sm:h-10" 
-                />
+                <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-white mb-2 sm:mb-3" />
                 <h3 className="text-white font-semibold text-sm sm:text-base">Digital Files</h3>
                 <p className="text-white/70 text-xs sm:text-sm">PDFs, Templates, Assets</p>
               </div>
               <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-3 sm:p-4 transform hover:scale-105 transition-transform mt-8">
-                <Image 
-                  src="/globe.svg" 
-                  alt="Global Reach" 
-                  width={32} 
-                  height={32} 
-                  className="mb-2 sm:mb-3 sm:w-10 sm:h-10" 
-                />
+                <Globe className="w-8 h-8 sm:w-10 sm:h-10 text-white mb-2 sm:mb-3" />
                 <h3 className="text-white font-semibold text-sm sm:text-base">Global Reach</h3>
                 <p className="text-white/70 text-xs sm:text-sm">Sell Worldwide</p>
               </div>
               <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-3 sm:p-4 transform hover:scale-105 transition-transform">
-                <Image 
-                  src="/window.svg" 
-                  alt="Easy Platform" 
-                  width={32} 
-                  height={32} 
-                  className="mb-2 sm:mb-3 sm:w-10 sm:h-10" 
-                />
+                <Monitor className="w-8 h-8 sm:w-10 sm:h-10 text-white mb-2 sm:mb-3" />
                 <h3 className="text-white font-semibold text-sm sm:text-base">Easy Platform</h3>
                 <p className="text-white/70 text-xs sm:text-sm">Simple to Use</p>
               </div>

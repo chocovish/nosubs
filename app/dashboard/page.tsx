@@ -2,47 +2,66 @@
 
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Header } from '@/components/header';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
-import { getSalesData, type SaleData } from '@/app/actions/sales';
-
-
+import { Button } from '@/components/ui/button';
+import { getSalesData, getRecentSales, type SaleData, type RecentSale } from '@/app/actions/sales';
+import { getUserBalance } from '@/app/actions/withdrawals';
+import { useRouter } from 'next/navigation';
+import { SalesChart } from '@/components/dashboard/sales-chart';
+import { SalesStats } from '@/components/dashboard/sales-stats';
+import { RecentSales } from '@/components/dashboard/recent-sales';
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [salesData, setSalesData] = useState<SaleData[]>([]);
+  const [recentSales, setRecentSales] = useState<RecentSale[]>([]);
+  const [balance, setBalance] = useState(0);
   const [timeframe, setTimeframe] = useState<'day' | 'month' | 'year'>('month');
+  const [salesLimit, setSalesLimit] = useState('10');
 
   useEffect(() => {
-    const fetchSalesData = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getSalesData(timeframe);
-        setSalesData(data);
+        const [salesData, recentSalesData, userBalance] = await Promise.all([
+          getSalesData(timeframe),
+          getRecentSales(parseInt(salesLimit)),
+          getUserBalance()
+        ]);
+        setSalesData(salesData);
+        setRecentSales(recentSalesData);
+        setBalance(userBalance);
       } catch (error) {
-        console.error('Error fetching sales data:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
     if (session) {
-      fetchSalesData();
+      fetchData();
     }
-  }, [session, timeframe]);
+  }, [session, timeframe, salesLimit]);
+
+  const handleLimitChange = (newLimit: string) => {
+    setSalesLimit(newLimit);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">Sales Dashboard</h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-3xl font-bold">Sales Dashboard</h1>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Available Balance</p>
+                <p className="text-2xl font-bold">${balance.toFixed(2)}</p>
+              </div>
+              <Button onClick={() => router.push('/withdrawals')}>
+                Request Withdrawal
+              </Button>
+            </div>
+          </div>
           <div className="flex gap-4 mb-6">
             <button
               onClick={() => setTimeframe('day')}
@@ -66,42 +85,16 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Sales Overview</h2>
-            <div className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={salesData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="amount" fill="#3b82f6" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
+          <SalesChart data={salesData} />
+          <SalesStats data={salesData} />
+        </div>
 
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Sales Statistics</h2>
-            <div className="space-y-4">
-              <div>
-                <p className="text-gray-600">Total Sales</p>
-                <p className="text-2xl font-bold">
-                  ${salesData.reduce((sum, sale) => sum + sale.amount, 0).toFixed(2)}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-600">Average Sale</p>
-                <p className="text-2xl font-bold">
-                  ${(salesData.reduce((sum, sale) => sum + sale.amount, 0) / (salesData.length || 1)).toFixed(2)}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-600">Total Transactions</p>
-                <p className="text-2xl font-bold">{salesData.reduce((t, sale)=>t+sale.transactions, 0)}</p>
-              </div>
-            </div>
-          </Card>
+        <div className="mt-8">
+          <RecentSales 
+            sales={recentSales} 
+            onLimitChange={handleLimitChange}
+            currentLimit={salesLimit}
+          />
         </div>
       </main>
     </div>
