@@ -1,23 +1,31 @@
 'use client';
 
-import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { useState } from 'react';
 import { BrandLogo } from './brand-logo';
-import { 
-  LayoutDashboard, 
-  Package, 
-  Store, 
-  LogOut, 
-  Menu, 
-  X, 
-  ExternalLink 
+import {
+  LayoutDashboard,
+  Package,
+  Store,
+  LogOut,
+  Menu,
+  X,
+  ExternalLink
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import { CurrentUserAvatar } from './current-user-avatar';
 
 export function Header() {
-  const { data: session } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
 
   return (
     <header className="w-full border-b bg-gradient-to-r from-white via-purple-50 to-white shadow-sm">
@@ -39,75 +47,61 @@ export function Header() {
           )}
         </button>
 
-        <nav className={`
-          ${isMenuOpen ? 'flex' : 'hidden'} 
-          lg:flex flex-col lg:flex-row fixed lg:relative 
-          top-[61px] lg:top-auto left-0 right-0 
-          bg-white lg:bg-transparent border-b lg:border-0 
-          p-4 lg:p-0 shadow-lg lg:shadow-none 
-          items-start lg:items-center gap-4 
-          w-full lg:w-auto z-50
-        `}>
-          {session ? (
-            <>
-              <Link 
-                href="/dashboard" 
-                className="flex items-center gap-2 w-full lg:w-auto px-3 py-2 rounded-lg hover:bg-purple-50 text-gray-700 hover:text-purple-700 transition-colors"
-              >
-                <LayoutDashboard className="w-4 h-4" />
+        {/* Desktop navigation */}
+        <nav className="hidden lg:flex items-center space-x-6">
+          <Link href="/dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+            <LayoutDashboard className="w-5 h-5" />
+            <span>Dashboard</span>
+          </Link>
+          <Link href="/products" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+            <Package className="w-5 h-5" />
+            <span>Products</span>
+          </Link>
+          <Link href="/store" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+            <Store className="w-5 h-5" />
+            <span>Store</span>
+          </Link>
+          <div className="flex items-center space-x-2">
+            <CurrentUserAvatar />
+            <Button
+              variant="ghost"
+              className="flex items-center space-x-2 text-gray-700 hover:text-red-600 hover:bg-red-50"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Sign Out</span>
+            </Button>
+          </div>
+        </nav>
+
+        {/* Mobile navigation */}
+        {isMenuOpen && (
+          <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b shadow-lg py-4">
+            <div className="container mx-auto px-4 space-y-4">
+              <Link href="/dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+                <LayoutDashboard className="w-5 h-5" />
                 <span>Dashboard</span>
               </Link>
-              <Link 
-                href="/dashboard/products" 
-                className="flex items-center gap-2 w-full lg:w-auto px-3 py-2 rounded-lg hover:bg-purple-50 text-gray-700 hover:text-purple-700 transition-colors"
-              >
-                <Package className="w-4 h-4" />
+              <Link href="/products" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+                <Package className="w-5 h-5" />
                 <span>Products</span>
               </Link>
-              <Link 
-                href={`/shop/${session.user?.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 w-full lg:w-auto px-3 py-2 rounded-lg hover:bg-purple-50 text-gray-700 hover:text-purple-700 transition-colors group"
+              <Link href="/store" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+                <Store className="w-5 h-5" />
+                <span>Store</span>
+              </Link>
+              <CurrentUserAvatar />
+              <Button
+                variant="ghost"
+                className="flex items-center space-x-2 text-gray-700 hover:text-red-600 hover:bg-red-50 w-full justify-start"
+                onClick={handleSignOut}
               >
-                <Store className="w-4 h-4" />
-                <span>My Shop</span>
-                <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" />
-              </Link>
-              <div className="flex items-center gap-4 w-full lg:w-auto flex-col lg:flex-row lg:ml-4 lg:border-l lg:pl-4">
-                <span className="text-sm font-medium text-gray-600 px-3 py-2">
-                  {session.user?.name}
-                </span>
-                <Button
-                  variant="outline"
-                  onClick={() => signOut({ callbackUrl: '/login' })}
-                  className="w-full lg:w-auto gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="w-full lg:w-auto">
-                <Button 
-                  variant="ghost" 
-                  className="w-full lg:w-auto hover:bg-purple-50 hover:text-purple-700"
-                >
-                  Login
-                </Button>
-              </Link>
-              <Link href="/signup" className="w-full lg:w-auto">
-                <Button 
-                  className="w-full lg:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all"
-                >
-                  Sign Up
-                </Button>
-              </Link>
-            </>
-          )}
-        </nav>
+                <LogOut className="w-5 h-5" />
+                <span>Sign Out</span>
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

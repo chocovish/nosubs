@@ -1,6 +1,5 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,6 @@ import { SalesStats } from '@/components/dashboard/sales-stats';
 import { RecentSales } from '@/components/dashboard/recent-sales';
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
   const router = useRouter();
   const [salesData, setSalesData] = useState<SaleData[]>([]);
   const [recentSales, setRecentSales] = useState<RecentSale[]>([]);
@@ -36,10 +34,8 @@ export default function DashboardPage() {
       }
     };
 
-    if (session) {
-      fetchData();
-    }
-  }, [session, timeframe, salesLimit]);
+    fetchData();
+  }, [timeframe, salesLimit]);
 
   const handleLimitChange = (newLimit: string) => {
     setSalesLimit(newLimit);

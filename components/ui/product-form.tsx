@@ -25,7 +25,8 @@ import {
   DropzoneUploadIcon,
   DropzoneZone,
 } from '@/components/ui/dropzone';
-
+import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
+import { Dropzone as DropzoneSB, DropzoneContent, DropzoneEmptyState } from '@/components/dropzone'
 type Product = {
   id: string;
   title: string;
@@ -55,6 +56,13 @@ const productFormSchema = z.object({
 });
 
 export function ProductForm({ initialData, onSubmit, onClose, mode }: ProductFormProps) {
+  const props = useSupabaseUpload({
+    bucketName: 'test',
+    path: 'test',
+    allowedMimeTypes: ['image/*'],
+    maxFiles: 1,
+    maxFileSize: 1000 * 1000 * 1, // 10MB,
+  })
   const [thumbnailPreview, setThumbnailPreview] = useState<string>(initialData?.imageUrl || '');
   const [filePreview, setFilePreview] = useState<string>(initialData?.fileUrl || '');
 
