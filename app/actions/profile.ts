@@ -20,7 +20,7 @@ export async function updateProfile(data: unknown) {
   revalidatePath("/myprofile");
 }
 
-export async function addPaymentMethod(data: unknown) {
+export async function updatePaymentMethod(data: unknown) {
   const user = await auth();
   if (!user?.id) {
     throw new Error("Unauthorized");
@@ -28,41 +28,31 @@ export async function addPaymentMethod(data: unknown) {
 
   const validatedData = paymentMethodSchema.parse(data);
 
-  // If this is the first payment method, make it default
-  const existingMethods = await prisma.paymentMethod.count({
+  await prisma.paymentMethod.upsert({
     where: { userId: user.id },
-  });
-
-  if (existingMethods === 0) {
-    validatedData.isDefault = true;
-  }
-
-  await prisma.paymentMethod.create({
-    data: {
+    update: {
       ...validatedData,
-      details: JSON.stringify(validatedData.details),
+      details: validatedData.details,
+    },
+    create: {
+      ...validatedData,
+      details: validatedData.details,
       userId: user.id,
     },
   });
 
   revalidatePath("/myprofile");
 }
-
-export async function getPaymentMethods() {
+export async function getPaymentMethod() {
   const user = await auth();
   if (!user?.id) {
     throw new Error("Unauthorized");
   }
 
-  const methods = await prisma.paymentMethod.findMany({
-    where: { userId: user.id },
-    orderBy: { isDefault: "desc" },
+  const method = await prisma.paymentMethod.findUnique({
+    where: { userId: user.id }
   });
-
-  return methods.map(method => ({
-    ...method,
-    details: JSON.parse(method.details),
-  }));
+  return method;
 } 
 
 export async function getUserProfile(){

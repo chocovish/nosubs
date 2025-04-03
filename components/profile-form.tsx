@@ -8,48 +8,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from 'lucide-react';
 import { User as UserProfile } from "@prisma/client";
 import { z } from "zod";
 import { uploadFile } from "@/lib/upload";
+import { useUser, useUserProfile } from "@/hooks/use-user";
 const profileSchemaForForm = profileSchema.extend({
   image: z.custom<FileList>(),
 })
 type ProfileFormData = z.infer<typeof profileSchema>;
 type UserType = ProfileFormData["userType"];
-export function ProfileForm({ user }: { user: UserProfile }) {
-  const [isLoading, setIsLoading] = useState(false);
-
+export function ProfileForm() {
+  // const [isLoading, setIsLoading] = useState(false);
+  const user = useUserProfile();
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.name!,
+        userType: user.userType,
+        shopSlug: user.shopSlug!,
+      });
+    }
+  }, [user]);
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    reset,
   } = useForm({
     resolver: zodResolver(profileSchemaForForm),
     defaultValues: {
-      name: user.name ?? "",
-      userType: user.userType as UserType ?? "buyer",
-      shopSlug: user.shopSlug ?? "",
+      userType: "buyer"
     },
   });
 
   const onSubmit = async (data: z.infer<typeof profileSchemaForForm>) => {
     try {
-      setIsLoading(true);
       if (data.image?.length) {
         let result = await uploadFile(data.image[0], "thumbnails");
         let payload = { ...data, image: result.fileUrl };
         await updateProfile(payload);
       } else {
-        const payload = { ...data, image: user.image };
+        const payload = { ...data, image: user?.image };
         await updateProfile(payload);
       }
       toast.success("Profile updated successfully");
     } catch (error) {
       toast.error("Failed to update profile");
     } finally {
-      setIsLoading(false);
     }
   };
 
@@ -126,8 +133,8 @@ export function ProfileForm({ user }: { user: UserProfile }) {
         </div>
       </div>
 
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Saving..." : "Save Changes"}
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Saving..." : "Save Changes"}
       </Button>
     </form>
   );

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { paymentMethodSchema } from "@/lib/validations/profile";
-import { addPaymentMethod, getPaymentMethods } from "@/app/actions/profile";
+import { updatePaymentMethod, getPaymentMethod } from "@/app/actions/profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -20,18 +20,18 @@ import {
 
 type PaymentMethodFormValues = z.infer<typeof paymentMethodSchema>;
 
-export function PaymentMethodsForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
-
+export function PaymentMethodForm() {
+  // const [paymentMethod, setPaymentMethod] = useState<PaymentMethodFormValues|null>(null);
+  const paymentMethodUpdateHistory : PaymentMethodFormValues[] = [];
   useEffect(() => {
-    loadPaymentMethods();
+    loadPaymentMethod();
   }, []);
 
-  const loadPaymentMethods = async () => {
+  const loadPaymentMethod = async () => {
     try {
-      const methods = await getPaymentMethods();
-      setPaymentMethods(methods);
+      const method = await getPaymentMethod();
+      // setPaymentMethod(method);
+      method && form.reset(method);
     } catch (error) {
       toast.error("Failed to load payment methods");
     }
@@ -40,9 +40,7 @@ export function PaymentMethodsForm() {
   const form = useForm<PaymentMethodFormValues>({
     resolver: zodResolver(paymentMethodSchema),
     defaultValues: {
-      type: "bank",
-      details: {},
-      isDefault: false,
+      type: "bank"
     },
   });
 
@@ -50,16 +48,14 @@ export function PaymentMethodsForm() {
 
   const onSubmit = async (data: PaymentMethodFormValues) => {
     try {
-      setIsLoading(true);
-      await addPaymentMethod(data);
+      await updatePaymentMethod(data);
       toast("Payment method added successfully");
-      loadPaymentMethods();
+      loadPaymentMethod();
       form.reset();
     } catch (error) {
       console.error("Failed to add payment method:", error);
       toast("Failed to add payment method");
     } finally {
-      setIsLoading(false);
     }
   };
 
@@ -80,6 +76,7 @@ export function PaymentMethodsForm() {
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        value={field.value}
                         className="flex flex-col space-y-1"
                       >
                         <FormItem className="flex items-center space-x-3 space-y-0">
@@ -176,8 +173,8 @@ export function PaymentMethodsForm() {
                 />
               )}
 
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Adding..." : "Add Payment Method"}
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Adding..." : "Add Payment Method"}
               </Button>
             </form>
           </Form>
@@ -186,7 +183,7 @@ export function PaymentMethodsForm() {
         <div>
           <h3 className="text-lg font-medium mb-4">Saved Payment Methods</h3>
           <div className="space-y-4">
-            {paymentMethods.map((method) => (
+            {/* {paymentMethodUpdateHistory.map((method) => (
               <div
                 key={method.id}
                 className="p-4 border rounded-lg bg-white shadow-sm"
@@ -212,7 +209,7 @@ export function PaymentMethodsForm() {
                   )}
                 </div>
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>

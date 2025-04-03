@@ -14,7 +14,7 @@ export type Product = {
   displayOrder: number;
 };
 
-export async function getProducts(userId) {
+export async function getProducts(userId?: string) {
   const user = await auth();
   userId = userId ?? user?.id;
   if (!userId) {

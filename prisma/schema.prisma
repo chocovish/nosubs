@@ -8,6 +8,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -20,6 +24,7 @@ model User {
   email         String    @unique
   image         String?
   balance       Float     @default(0)
+  /// [UserType]
   userType      String    @default("buyer") // buyer or seller
   shopSlug      String?   @unique
   createdAt     DateTime  @default(now())
@@ -28,7 +33,7 @@ model User {
   sales         Sale[]
   purchases     Sale[]    @relation("Buyer")
   withdrawals   Withdrawal[]
-  paymentMethods PaymentMethod[]
+  paymentMethod PaymentMethod?
 }
 
 model Product {
@@ -75,10 +80,12 @@ model Withdrawal {
 
 model PaymentMethod {
   id          String   @id @default(cuid())
-  userId      String
+  userId      String   @unique
   user        User     @relation(fields: [userId], references: [id])
+  /// [PaymentMethodStringType]
   type        String   // "bank" or "upi"
-  details     String   // Store payment details as JSON
+  /// [PaymentMethodType]
+  details     Json   // Store payment details as JSON
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

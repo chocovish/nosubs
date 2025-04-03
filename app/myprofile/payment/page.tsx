@@ -1,6 +1,6 @@
 import { Header } from "@/components/header";
 import { ProfileSidebar } from "@/components/profile-sidebar";
-import { PaymentMethodsForm } from "@/components/payment-methods-form";
+import { PaymentMethodForm } from "@/components/payment-methods-form";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
@@ -27,7 +27,7 @@ export default async function PaymentMethods() {
         <div className="flex gap-8">
           <ProfileSidebar />
           <div className="flex-1 bg-white rounded-lg shadow-sm p-6">
-            <PaymentMethodsForm />
+            <PaymentMethodForm />
           </div>
         </div>
       </main>
