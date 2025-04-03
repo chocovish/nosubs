@@ -23,7 +23,7 @@ export function BrandLogo({ variant = 'light', size = 'lg' }: BrandLogoProps) {
 
   return (
     <h1 className={`font-bold bg-gradient-to-r ${gradientClasses[variant]} ${sizeClasses[size]} bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105 ${dancingScript.className}`}>
-      SellFiles.online
+      SellFiles.me
     </h1>
   );
 } 

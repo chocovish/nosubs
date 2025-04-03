@@ -11,14 +11,17 @@ import {
   LogOut,
   Menu,
   X,
+  UserCircle2,
   ExternalLink
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { CurrentUserAvatar } from './current-user-avatar';
 import { useUser } from '@/hooks/use-user';
+import { useUserProfile } from '@/hooks/use-user';
 export function Header() {
   const user = useUser();
+  const profile = useUserProfile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -48,8 +51,15 @@ export function Header() {
           )}
         </button>
 
-        {/* Desktop navigation */}
-        <nav className="hidden lg:flex items-center space-x-6">
+        <nav className={`
+          ${isMenuOpen ? 'flex' : 'hidden'} 
+          lg:flex flex-col lg:flex-row fixed lg:relative 
+          top-[61px] lg:top-auto left-0 right-0 
+          bg-white lg:bg-transparent border-b lg:border-0 
+          p-4 lg:p-0 shadow-lg lg:shadow-none 
+          items-start lg:items-center gap-4 
+          w-full lg:w-auto z-50
+        `}>
           <Link href="/dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
             <LayoutDashboard className="w-5 h-5" />
             <span>Dashboard</span>
@@ -58,51 +68,23 @@ export function Header() {
             <Package className="w-5 h-5" />
             <span>Products</span>
           </Link>
-          <Link href={`/shop/${user?.id}`} className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+          <Link href={`/shop/${profile?.shopSlug}`} className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
             <Store className="w-5 h-5" />
             <span>Store</span>
           </Link>
-          <div className="flex items-center space-x-2">
-            <CurrentUserAvatar />
+          <Link href="/myprofile" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+            <UserCircle2 className="w-5 h-5" />
+            <span>My Profile</span>
+          </Link>
             <Button
               variant="ghost"
-              className="flex items-center space-x-2 text-gray-700 hover:text-red-600 hover:bg-red-50"
+              className="flex pl-0 items-center space-x-2 text-gray-700 hover:text-red-600 hover:bg-red-50"
               onClick={handleSignOut}
             >
               <LogOut className="w-5 h-5" />
               <span>Sign Out</span>
             </Button>
-          </div>
         </nav>
-
-        {/* Mobile navigation */}
-        {isMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b shadow-lg py-4">
-            <div className="container mx-auto px-4 space-y-4">
-              <Link href="/dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
-                <LayoutDashboard className="w-5 h-5" />
-                <span>Dashboard</span>
-              </Link>
-              <Link href="/dashboard/products" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
-                <Package className="w-5 h-5" />
-                <span>Products</span>
-              </Link>
-              <Link href={`/shop/${user?.id}`} className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
-                <Store className="w-5 h-5" />
-                <span>Store</span>
-              </Link>
-              <CurrentUserAvatar />
-              <Button
-                variant="ghost"
-                className="flex items-center space-x-2 text-gray-700 hover:text-red-600 hover:bg-red-50 w-full justify-start"
-                onClick={handleSignOut}
-              >
-                <LogOut className="w-5 h-5" />
-                <span>Sign Out</span>
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </header>
   );

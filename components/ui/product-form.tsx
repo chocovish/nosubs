@@ -25,6 +25,8 @@ import {
   DropzoneUploadIcon,
   DropzoneZone,
 } from '@/components/ui/dropzone';
+import { toast } from 'sonner';
+import { RichTextEditor } from './rich-text-editor';
 
 type Product = {
   id: string;
@@ -50,8 +52,8 @@ const productFormSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   price: z.number().min(0, 'Price must be positive'),
-  thumbnail: z.any().optional(),
-  productFile: z.any().optional(),
+  thumbnail: z.custom<FileList>(),
+  productFile: z.custom<FileList>(),
 });
 
 export function ProductForm({ initialData, onSubmit, onClose, mode }: ProductFormProps) {
@@ -95,6 +97,7 @@ export function ProductForm({ initialData, onSubmit, onClose, mode }: ProductFor
 
       await onSubmit(data);
       form.reset();
+      toast.success('Product saved successfully');
     } catch (error) {
       console.error('Error saving product:', error);
     }
@@ -125,7 +128,10 @@ export function ProductForm({ initialData, onSubmit, onClose, mode }: ProductFor
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -160,7 +166,8 @@ export function ProductForm({ initialData, onSubmit, onClose, mode }: ProductFor
                 <FormControl>
                   <Dropzone
                     accept={{
-                      'image/*': ['.jpg', '.png'],
+                      'image/jpeg': ['.jpg', '.jpeg'],
+                      'image/png': ['.png'],
                     }}
                     onDropAccepted={(files) => {
                       onChange(files);

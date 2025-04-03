@@ -2,7 +2,6 @@
 
 import { prisma } from '@/lib/prisma';
 import { auth } from '../../lib/auth';
-import { getServerSession } from 'next-auth';
 
 export type Product = {
   id: string;
@@ -15,7 +14,7 @@ export type Product = {
   displayOrder: number;
 };
 
-export async function getProducts(userId?: string) {
+export async function getProducts(userId) {
   const user = await auth();
   userId = userId ?? user?.id;
   if (!userId) {
@@ -31,6 +30,14 @@ export async function getProducts(userId?: string) {
     console.error('Error fetching products:', error);
     throw new Error('Failed to fetch products');
   }
+}
+
+export async function getProductsBySlug(slug: string) {
+  const user = await prisma.user.findUnique({
+    where: { shopSlug: slug },
+    select: { id: true }
+  });
+  return getProducts(user?.id);
 }
 
 export async function createProduct(data: Omit<Product, 'id' | 'displayOrder' | 'isVisible'>) {

@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { getProducts } from '@/app/actions/products';
+import { getProducts, getProductsBySlug } from '@/app/actions/products';
 import Link from 'next/link';
 import { ShoppingCart, Star, Tag, Eye, Store } from 'lucide-react';
 
@@ -14,9 +14,9 @@ type Product = {
   displayOrder: number;
 };
 
-export default async function UserShopPage({ params }: { params: Promise<{ user: string }> }) {
-  const { user } = await params;
-  const products = (await getProducts(user)).filter(product => product.isVisible);
+export default async function UserShopPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const products = (await getProductsBySlug(slug)).filter(product => product.isVisible);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-red-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -24,7 +24,7 @@ export default async function UserShopPage({ params }: { params: Promise<{ user:
         <div className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent inline-flex items-center gap-3">
             <Store className="w-8 h-8 sm:w-10 sm:h-10 inline-block" />
-            {`${user}'s Shop`}
+            {`${slug}'s Shop`}
           </h1>
           <p className="mt-4 text-gray-600 text-lg">
             Discover amazing digital products
@@ -33,7 +33,7 @@ export default async function UserShopPage({ params }: { params: Promise<{ user:
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {products.map((product) => (
-            <Link href={`/shop/${user}/${product.id}`} key={product.id}>
+            <Link href={`/shop/${slug}/${product.id}`} key={product.id}>
               <Card className="group h-full overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] bg-white/80 backdrop-blur-sm hover:bg-white/90 border-transparent hover:border-purple-100">
                 <div className="relative">
                   {/* Product Image */}

@@ -8,6 +8,7 @@ import { Header } from '@/components/header';
 import { ProductForm } from '@/components/ui/product-form';
 import { getProducts, createProduct, updateProduct, updateProductsOrder, toggleProductVisibility, deleteProduct } from '@/app/actions/products';
 import { Pencil, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { toast, useSonner } from 'sonner';
 
 type Product = {
   id: string;
@@ -116,9 +117,11 @@ export default function ProductsPage() {
         <div className="container mx-auto md:p-4">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Manage Products</h1>
-            <Button onClick={() => setIsEditing('new')}>Add Product</Button>
+            <Button onClick={() => {
+                setIsEditing('new')
+              }}>Add Product</Button>
           </div>
-          {isEditing && (
+          {isEditing && ( 
             <ProductForm
               mode={isEditing === 'new' ? 'create' : 'edit'}
               initialData={isEditing === 'new' ? undefined : products.find(p => p.id === isEditing)}

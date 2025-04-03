@@ -11,6 +11,8 @@ import Link from 'next/link';
 import { initializePayment, verifyPayment } from '@/app/actions/payment';
 import { PurchaseDialog } from '@/components/ui/purchase-dialog';
 import { DownloadDialog } from '@/components/ui/download-dialog';
+import prisma from '@/lib/prisma';
+import { getUserBySlug } from '@/app/actions/profile';
 
 type Product = {
   id: string;
@@ -22,8 +24,8 @@ type Product = {
   isVisible: boolean;
 };
 
-export default function ProductDetailPage({ params }: { params: Promise<{ user: string; productId: string }> }) {
-  const { user, productId } = use(params);
+export default function ProductDetailPage({ params }: { params: Promise<{ slug: string; productId: string }> }) {
+  const { slug, productId } = use(params);
   const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloadDialogOpen, setIsDownloadDialogOpen] = useState(false);
@@ -65,7 +67,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ user: 
           <h2 className="text-2xl font-bold text-gray-800">Product Not Found</h2>
           <p className="text-gray-600">The product you're looking for doesn't exist or has been removed.</p>
           <Link 
-            href={`/shop/${user}`}
+            href={`/shop/${slug}`}
             className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -76,10 +78,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ user: 
     );
   }
 
+
+
   const handlePurchase = async () => {
     try {
       setIsLoading(true);
-      const paymentData = await initializePayment(productId, user);
+      const paymentData = await initializePayment(productId, slug);
 
       const options = {
         key: paymentData.key,
@@ -95,7 +99,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ user: 
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
               productId: productId,
-              sellerId: user,
+              sellerId: (await getUserBySlug(slug))!,
               guestInfo: undefined
             });
             if (result?.fileUrl) {
@@ -132,7 +136,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ user: 
       <div className="max-w-7xl mx-auto">
         {/* Back to Shop Link */}
         <Link 
-          href={`/shop/${user}`}
+          href={`/shop/${slug}`}
           className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8 group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
@@ -162,7 +166,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ user: 
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Store className="w-6 h-6 text-purple-600" />
-                <span className="text-gray-600 font-medium">{user}'s Store</span>
+                <span className="text-gray-600 font-medium">{slug}'s Store</span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 {product.title}
