@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
 import { getProductById } from '@/app/actions/products';
 import { ShoppingCart, ArrowLeft, Tag, Shield, Download, CheckCircle, Store } from 'lucide-react';
@@ -13,6 +13,7 @@ import { PurchaseDialog } from '@/components/ui/purchase-dialog';
 import { DownloadDialog } from '@/components/ui/download-dialog';
 import prisma from '@/lib/prisma';
 import { getUserBySlug } from '@/app/actions/profile';
+import ShopHeader from '@/components/shop/ShopHeader';
 
 type Product = {
   id: string;
@@ -132,134 +133,128 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-red-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Back to Shop Link */}
-        <Link 
-          href={`/shop/${slug}`}
-          className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8 group"
-        >
-          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          <span>Back to Shop</span>
-        </Link>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Image Section */}
-          <div className="space-y-4">
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100">
-              <img
-                src={product.imageUrl}
-                alt={product.title}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-                <Tag className="w-5 h-5 text-purple-600" />
-                <span className="font-bold text-purple-600 text-lg">
-                  ${product.price}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Product Info Section */}
-          <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-red-50">
+      <ShopHeader shopName={slug} />
+      
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            {/* Product Image Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Store className="w-6 h-6 text-purple-600" />
-                <span className="text-gray-600 font-medium">{slug}'s Store</span>
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                {product.title}
-              </h1>
-              <p className="text-gray-600 text-lg leading-relaxed">
-                {product.description}
-              </p>
-            </div>
-
-            {/* Features */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6">
-              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl">
-                <Shield className="w-5 h-5 text-purple-600 mt-1" />
-                <div>
-                  <h3 className="font-semibold text-gray-800">Secure Purchase</h3>
-                  <p className="text-sm text-gray-600">Protected by our secure payment system</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl">
-                <Download className="w-5 h-5 text-purple-600 mt-1" />
-                <div>
-                  <h3 className="font-semibold text-gray-800">Instant Download</h3>
-                  <p className="text-sm text-gray-600">Get immediate access after purchase</p>
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100">
+                <img
+                  src={product.imageUrl}
+                  alt={product.title}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                  <Tag className="w-5 h-5 text-purple-600" />
+                  <span className="font-bold text-purple-600 text-lg">
+                    ${product.price}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Purchase Button */}
-            <Button
-              onClick={() => setIsPurchaseDialogOpen(true)}
-              disabled={isLoading}
-              className="w-full sm:w-auto px-8 py-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin mr-2 h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Buy Now - ${product.price}
-                </>
-              )}
-            </Button>
+            {/* Product Info Section */}
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  {product.title}
+                </h1>
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  {product.description}
+                </p>
+              </div>
+
+              {/* Features */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6">
+                <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl">
+                  <Shield className="w-5 h-5 text-purple-600 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Secure Purchase</h3>
+                    <p className="text-sm text-gray-600">Protected by our secure payment system</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl">
+                  <Download className="w-5 h-5 text-purple-600 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Instant Download</h3>
+                    <p className="text-sm text-gray-600">Get immediate access after purchase</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Purchase Button */}
+              <Button
+                onClick={() => setIsPurchaseDialogOpen(true)}
+                disabled={isLoading}
+                className="w-full sm:w-auto px-8 py-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin mr-2 h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    Buy Now - ${product.price}
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
-
-        {/* Purchase Dialog */}
-        <Dialog open={isPurchaseDialogOpen} onOpenChange={setIsPurchaseDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <div className="text-center space-y-4">
-              <div className="mx-auto w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-purple-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800">
-                Confirm Purchase
-              </h3>
-              <p className="text-gray-600">
-                You are about to purchase {product.title} for ${product.price}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Button
-                  onClick={handlePurchase}
-                  disabled={isLoading}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-                >
-                  {isLoading ? 'Processing...' : 'Confirm Purchase'}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsPurchaseDialogOpen(false)}
-                  disabled={isLoading}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <DownloadDialog
-          isOpen={isDownloadDialogOpen}
-          onClose={() => setIsDownloadDialogOpen(false)}
-          onDownload={() => {
-            if (downloadUrl) {
-              window.location.href = downloadUrl;
-            }
-          }}
-          productTitle={product.title}
-        />
       </div>
+
+      {/* Purchase Dialog */}
+      <Dialog open={isPurchaseDialogOpen} onOpenChange={setIsPurchaseDialogOpen}>
+        
+        <DialogContent className="sm:max-w-md">
+        <DialogTitle></DialogTitle>
+          <div className="text-center space-y-4">
+            <div className="mx-auto w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800">
+              Confirm Purchase
+            </h3>
+            <p className="text-gray-600">
+              You are about to purchase {product.title} for ${product.price}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button
+                onClick={handlePurchase}
+                disabled={isLoading}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+              >
+                {isLoading ? 'Processing...' : 'Confirm Purchase'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setIsPurchaseDialogOpen(false)}
+                disabled={isLoading}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Download Dialog */}
+      <DownloadDialog 
+        isOpen={isDownloadDialogOpen}
+        onClose={() => setIsDownloadDialogOpen(false)}
+        onDownload={() => {
+          if (downloadUrl) {
+            window.location.href = downloadUrl;
+          }
+        }}
+        productTitle={product.title}
+      />
     </div>
   );
 }
