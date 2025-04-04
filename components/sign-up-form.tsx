@@ -15,24 +15,29 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+
+const signUpSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  repeatPassword: z.string().min(6),
+})
 
 export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [repeatPassword, setRepeatPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const {register, handleSubmit,setError, formState: {errors,isSubmitting}} = useForm({resolver: zodResolver(signUpSchema)})
   const router = useRouter()
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSignUp = async (data: z.infer<typeof signUpSchema>) => {
+    const {email, password, repeatPassword} = data
     const supabase = createClient()
-    setIsLoading(true)
-    setError(null)
+    
 
     if (password !== repeatPassword) {
-      setError('Passwords do not match')
-      setIsLoading(false)
+      setError("repeatPassword",{message:'Passwords do not match'})
+    
       return
     }
 
@@ -41,16 +46,15 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/protected`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+          channel: "whatsapp",
         },
       })
       if (error) throw error
       router.push('/auth/sign-up-success')
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
-    } finally {
-      setIsLoading(false)
-    }
+    } catch (error: any) {
+      setError("root",{message: error?.message ?? 'An error occurred'}, {shouldFocus: true})
+    } 
   }
 
   return (
@@ -61,46 +65,30 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
           <CardDescription>Create a new account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSignUp}>
+          <form onSubmit={handleSubmit(handleSignUp)}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+                <Input {...register("email")} />
+                <Label className="text-red-600">{errors.email?.message?.toString()}</Label>
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <Input {...register("password")} type="password" />
+                <Label className="text-red-600">{errors.password?.message?.toString()}</Label>
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="repeat-password">Repeat Password</Label>
                 </div>
-                <Input
-                  id="repeat-password"
-                  type="password"
-                  required
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
-                />
+                <Input {...register("repeatPassword")} type="password" />
+                <Label className="text-red-600">{errors.repeatPassword?.message?.toString()}</Label>
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating an account...' : 'Sign up'}
+              {errors.root && <p className="text-sm text-red-500">{errors.root.message}</p>}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Creating an account...' : 'Sign up'}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
