@@ -19,6 +19,13 @@ import { useRouter } from 'next/navigation';
 import { CurrentUserAvatar } from './current-user-avatar';
 import { useUser } from '@/hooks/use-user';
 import { useUserProfile } from '@/hooks/use-user';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 export function Header() {
   const user = useUser();
   const profile = useUserProfile();
@@ -68,10 +75,29 @@ export function Header() {
             <Package className="w-5 h-5" />
             <span>Products</span>
           </Link>
-          <Link href={`/shop/${profile?.shopSlug}`} className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
-            <Store className="w-5 h-5" />
-            <span>Store</span>
-          </Link>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link 
+                  href={profile?.shopSlug ? `/shop/${profile.shopSlug}` : '#'}
+                  target={profile?.shopSlug ? "_blank" : undefined}
+                  rel={profile?.shopSlug ? "noopener noreferrer" : undefined}
+                  className={`flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors ${
+                    !profile?.shopSlug ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  <Store className="w-5 h-5" />
+                  <span>Store</span>
+                  {profile?.shopSlug && <ExternalLink className="w-4 h-4 ml-1" />}
+                </Link>
+              </TooltipTrigger>
+              {!profile?.shopSlug && (
+                <TooltipContent>
+                  <p>Please add your shop URL in My Profile section</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
           <Link href="/myprofile" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
             <UserCircle2 className="w-5 h-5" />
             <span>My Profile</span>

@@ -4,7 +4,7 @@ export const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   userType: z.enum(["buyer", "seller"]),
   shopSlug: z.string().min(3, "Shop slug must be at least 3 characters").optional(),
-  image: z.string().optional(),
+  image: z.string().optional().nullable(),
 });
 
 export const bankDetailsSchema = z.object({
