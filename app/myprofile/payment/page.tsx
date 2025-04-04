@@ -1,4 +1,4 @@
-import { Header } from "@/components/header";
+import { Header } from "@/components/header/header";
 import { ProfileSidebar } from "@/components/profile-sidebar";
 import { PaymentMethodForm } from "@/components/payment-methods-form";
 import { auth } from "@/lib/auth";

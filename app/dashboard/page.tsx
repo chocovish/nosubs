@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Header } from '@/components/header';
+import { Header } from '@/components/header/header';
 import { Button } from '@/components/ui/button';
 import { getSalesData, getRecentSales, type SaleData, type RecentSale } from '@/app/actions/sales';
 import { getUserBalance } from '@/app/actions/withdrawals';

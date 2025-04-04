@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { BrandHeader } from '@/components/brand-header';
+import { BrandHeader } from '@/components/header/brand-header';
 import { FileText, Globe, Monitor } from 'lucide-react';
 import { auth } from '@/lib/auth';
 

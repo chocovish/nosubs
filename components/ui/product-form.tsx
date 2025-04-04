@@ -26,8 +26,7 @@ import {
   DropzoneZone,
 } from '@/components/ui/dropzone';
 import { toast } from 'sonner';
-import { RichTextEditor } from './rich-text-editor';
-
+import { RichTextEditor } from '@/components/rich-text/rich-text-editor';
 type Product = {
   id: string;
   title: string;

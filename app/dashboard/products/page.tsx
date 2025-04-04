@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Header } from '@/components/header';
+import { Header } from '@/components/header/header';
 import { ProductForm } from '@/components/ui/product-form';
 import { getProducts, createProduct, updateProduct, updateProductsOrder, toggleProductVisibility, deleteProduct } from '@/app/actions/products';
 import { Pencil, Eye, EyeOff, Trash2 } from 'lucide-react';

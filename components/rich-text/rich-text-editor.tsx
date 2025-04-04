@@ -2,6 +2,11 @@
 
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Heading from '@tiptap/extension-heading';
+import ListItem from '@tiptap/extension-list-item';
+import BulletList from '@tiptap/extension-bullet-list';
+import OrderedList from '@tiptap/extension-ordered-list';
+import Blockquote from '@tiptap/extension-blockquote';
 import { Toolbar } from './toolbar'; // We'll create this next
 
 interface RichTextEditorProps {
@@ -12,7 +17,31 @@ interface RichTextEditorProps {
 export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      Heading.configure({
+        HTMLAttributes: {
+          class: "text-xl font-bold capitalize",
+          levels: [2],
+        },
+      }),
+      ListItem,
+      BulletList.configure({
+        HTMLAttributes: {
+          class: "list-disc ml-2",
+        },
+      }),
+      OrderedList.configure({
+        HTMLAttributes: {
+          class: "list-decimal ml-2",
+        },
+      }),
+      Blockquote.configure({
+        HTMLAttributes: {
+          class: "border-l-2 border-gray-300 pl-4 py-2 italic",
+        },
+      }),
+    ],
     content: value,
     editorProps: {
       attributes: {
