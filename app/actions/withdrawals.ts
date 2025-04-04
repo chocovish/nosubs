@@ -18,7 +18,14 @@ export interface Withdrawal {
   amount: number;
   status: string;
   createdAt: Date;
-  bankDetails: string;
+  bankDetails: object;
+  transactionDetails: {
+    transactionId: string;
+    date: string;
+    reference: string;
+    notes?: string;
+  };
+
 }
 
 export async function getWithdrawals() {
@@ -38,7 +45,8 @@ export async function getWithdrawals() {
       amount: withdrawal.amount,
       status: withdrawal.status,
       createdAt: withdrawal.createdAt,
-      bankDetails: JSON.parse(withdrawal.bankDetails)
+      bankDetails: JSON.parse(withdrawal.bankDetails),
+      transactionDetails: JSON.parse(withdrawal.transactionDetails ?? '{}')
     }));
 }
 

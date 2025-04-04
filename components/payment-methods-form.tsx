@@ -31,7 +31,7 @@ export function PaymentMethodForm() {
     try {
       const method = await getPaymentMethod();
       // setPaymentMethod(method);
-      method && form.reset(method);
+      if(method) form.reset(method);
     } catch (error) {
       toast.error("Failed to load payment methods");
     }

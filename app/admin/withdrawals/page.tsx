@@ -28,6 +28,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Info } from 'lucide-react';
+import { TransactionDetailsDialog } from '@/components/withdrawals/transaction-details-dialog';
 
 const transactionFormSchema = z.object({
   transactionId: z.string().min(1, 'Transaction ID is required'),
@@ -63,6 +65,7 @@ export default function AdminWithdrawalsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<Withdrawal | null>(null);
   const [showTransactionDialog, setShowTransactionDialog] = useState(false);
+  const [showTransactionDetailsDialog, setShowTransactionDetailsDialog] = useState(false);
 
   const form = useForm<TransactionFormData>({
     resolver: zodResolver(transactionFormSchema),
@@ -124,6 +127,11 @@ export default function AdminWithdrawalsPage() {
     }
   };
 
+  const openTransactionDetails = (withdrawal: Withdrawal) => {
+    setSelectedWithdrawal(withdrawal);
+    setShowTransactionDetailsDialog(true);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -144,7 +152,6 @@ export default function AdminWithdrawalsPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bank Details</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction Details</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -169,25 +176,23 @@ export default function AdminWithdrawalsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                        ${withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
-                          withdrawal.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          withdrawal.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                          'bg-red-100 text-red-800'}`}>
-                        {withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {withdrawal.transactionDetails && (
-                        <div>
-                          <p>ID: {withdrawal.transactionDetails.transactionId}</p>
-                          <p>Date: {withdrawal.transactionDetails.date ? format(new Date(withdrawal.transactionDetails.date), 'PPP') : 'N/A'}</p>
-                          <p>Ref: {withdrawal.transactionDetails.reference}</p>
-                          {withdrawal.transactionDetails.notes && (
-                            <p>Notes: {withdrawal.transactionDetails.notes}</p>
-                          )}
-                        </div>
-                      )}
+                      <div className="flex items-center space-x-1">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                          ${withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            withdrawal.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            withdrawal.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                            'bg-red-100 text-red-800'}`}>
+                          {withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
+                        </span>
+                        {withdrawal.status === 'completed' && withdrawal.transactionDetails && (
+                          <button 
+                            onClick={() => openTransactionDetails(withdrawal)}
+                            className="text-blue-500 hover:text-blue-700 focus:outline-none"
+                          >
+                            <Info className="h-4 w-4 cursor-pointer" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {withdrawal.status === 'pending' && (
@@ -321,6 +326,12 @@ export default function AdminWithdrawalsPage() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      <TransactionDetailsDialog 
+        open={showTransactionDetailsDialog} 
+        onOpenChange={setShowTransactionDetailsDialog} 
+        withdrawal={selectedWithdrawal} 
+      />
     </div>
   );
 } 

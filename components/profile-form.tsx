@@ -46,8 +46,8 @@ export function ProfileForm() {
   const onSubmit = async (data: z.infer<typeof profileSchemaForForm>) => {
     try {
       if (data.image?.length) {
-        let result = await uploadFile(data.image[0], "thumbnails");
-        let payload = { ...data, image: result.fileUrl };
+        const result = await uploadFile(data.image[0], "thumbnails");
+        const payload = { ...data, image: result.fileUrl };
         await updateProfile(payload);
       } else {
         const payload = { ...data, image: user?.image };

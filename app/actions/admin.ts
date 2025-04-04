@@ -35,7 +35,7 @@ export async function login(password: string) {
 
   if (password === expectedPassword) {
     // Set admin password cookie
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.set('admin_password', password, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
