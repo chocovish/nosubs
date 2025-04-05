@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { UserCircle, CreditCard } from "lucide-react";
+import { UserCircle, CreditCard, ShoppingBag } from "lucide-react";
 
 const navigation = [
   { name: "Profile Info", href: "/myprofile", icon: UserCircle },
   { name: "Payment Methods", href: "/myprofile/payment", icon: CreditCard },
+  { name: "Purchases", href: "/myprofile/purchases", icon: ShoppingBag },
 ];
 
 export function ProfileSidebar() {
