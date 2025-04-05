@@ -1,32 +1,13 @@
-import { getUserProfile } from "@/app/actions/profile";
-import { createClient } from "@/lib/supabase/client";
-import { User } from "@supabase/supabase-js";
-import { use, useEffect, useState } from "react";
-import { User as UserProfile } from "@prisma/client";
+'use client';
+import { useUserQuery, useUserProfileQuery } from './use-user-query';
 
+// Re-export the hooks using React Query for backwards compatibility
 export const useUser = () => {
-  const [user, setUser] = useState<User | null>(null);
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await createClient().auth.getSession()
-      if (error) {
-        console.error(error)
-      }
-      if (data.session?.user) setUser(data.session?.user)
-    }
-    fetchUser()
-  }, [])
+  const { data: user } = useUserQuery();
   return user;
 };
 
 export const useUserProfile = () => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      const profile = await getUserProfile();
-      setProfile(profile);
-    };
-    fetchUserProfile();
-  }, []);
+  const { data: profile } = useUserProfileQuery();
   return profile;
 };

@@ -8,11 +8,11 @@ export function PathNameProvider({ children }: { children: React.ReactNode }) {
   // Determine the appropriate class based on the pathname
   let pathClass = '';
   
-  if (pathname === '/myprofile') {
+  if (pathname === '/dashboard/myprofile') {
     pathClass = 'pathname-myprofile';
-  } else if (pathname === '/myprofile/payment') {
+  } else if (pathname === '/dashboard/myprofile/payment') {
     pathClass = 'pathname-payment';
-  } else if (pathname === '/myprofile/purchases') {
+  } else if (pathname === '/dashboard/myprofile/purchases') {
     pathClass = 'pathname-purchases';
   }
   

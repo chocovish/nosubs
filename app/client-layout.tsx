@@ -1,5 +1,11 @@
 'use client';
 
+import { QueryProvider } from '@/lib/providers';
+
 export function ClientLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <QueryProvider>
+      {children}
+    </QueryProvider>
+  );
 }
