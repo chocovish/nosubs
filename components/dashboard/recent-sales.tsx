@@ -32,10 +32,12 @@ const limitOptions = [
 
 export function RecentSales({ sales, onLimitChange, currentLimit = '10' }: RecentSalesProps) {
   return (
-    <Card className="p-6 bg-gradient-to-br from-white to-purple-50">
+    <Card className="p-6 bg-gradient-to-br from-white to-purple-50 border-none shadow-md h-full flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
-          <ShoppingBag className="w-6 h-6 text-purple-600" />
+          <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full">
+            <ShoppingBag className="w-5 h-5 text-white" />
+          </div>
           <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Recent Sales
           </h2>
@@ -54,55 +56,57 @@ export function RecentSales({ sales, onLimitChange, currentLimit = '10' }: Recen
         </Select>
       </div>
       
-      <div className="rounded-md border border-purple-100">
-        <Table>
-          <TableHeader className="bg-purple-50">
-            <TableRow>
-              <TableHead className="text-purple-900">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Date
-                </div>
-              </TableHead>
-              <TableHead className="text-purple-900">
-                <div className="flex items-center gap-2">
-                  <ShoppingBag className="w-4 h-4" />
-                  Product
-                </div>
-              </TableHead>
-              <TableHead className="text-purple-900">
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Buyer
-                </div>
-              </TableHead>
-              <TableHead className="text-purple-900">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  Amount
-                </div>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sales.map((sale) => (
-              <TableRow key={sale.id} className="hover:bg-purple-50/50 transition-colors">
-                <TableCell className="text-gray-600">
-                  {new Date(sale.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </TableCell>
-                <TableCell className="font-medium text-gray-900">{sale.productName}</TableCell>
-                <TableCell className="text-gray-600">{sale.buyerName}</TableCell>
-                <TableCell className="font-semibold text-purple-600">
-                  ${sale.amount.toFixed(2)}
-                </TableCell>
+      <div className="rounded-md border border-purple-100 flex-grow overflow-hidden flex flex-col">
+        <div className="overflow-auto flex-grow">
+          <Table>
+            <TableHeader className="bg-purple-50 sticky top-0 z-10">
+              <TableRow>
+                <TableHead className="text-purple-900">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Date
+                  </div>
+                </TableHead>
+                <TableHead className="text-purple-900">
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4" />
+                    Product
+                  </div>
+                </TableHead>
+                <TableHead className="text-purple-900">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Buyer
+                  </div>
+                </TableHead>
+                <TableHead className="text-purple-900">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    Amount
+                  </div>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {sales.map((sale) => (
+                <TableRow key={sale.id} className="hover:bg-purple-50/50 transition-colors">
+                  <TableCell className="text-gray-600">
+                    {new Date(sale.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </TableCell>
+                  <TableCell className="font-medium text-gray-900">{sale.productName}</TableCell>
+                  <TableCell className="text-gray-600">{sale.buyerName}</TableCell>
+                  <TableCell className="font-semibold text-purple-600">
+                    ${sale.amount.toFixed(2)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </Card>
   );

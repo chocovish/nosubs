@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Header } from '@/components/header';
+import { Header } from '@/components/header/header';
 import { ProductForm } from '@/components/ui/product-form';
 import { getProducts, createProduct, updateProduct, updateProductsOrder, toggleProductVisibility, deleteProduct } from '@/app/actions/products';
 import { Pencil, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { toast, useSonner } from 'sonner';
 
 type Product = {
   id: string;
@@ -110,15 +111,15 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="container mx-auto md:p-4">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Manage Products</h1>
-            <Button onClick={() => setIsEditing('new')}>Add Product</Button>
+            <Button onClick={() => {
+                setIsEditing('new')
+              }}>Add Product</Button>
           </div>
-          {isEditing && (
+          {isEditing && ( 
             <ProductForm
               mode={isEditing === 'new' ? 'create' : 'edit'}
               initialData={isEditing === 'new' ? undefined : products.find(p => p.id === isEditing)}
@@ -212,6 +213,5 @@ export default function ProductsPage() {
           </DragDropContext>
         </div>
       </main>
-    </div>
   );
 }

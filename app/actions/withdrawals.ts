@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { requireAuth, AuthError } from '@/lib/auth-helper';
+import { requireAuth } from '@/lib/auth';
 
 export interface WithdrawalRequest {
   amount: number;
@@ -18,12 +18,18 @@ export interface Withdrawal {
   amount: number;
   status: string;
   createdAt: Date;
-  bankDetails: string;
+  bankDetails: object;
+  transactionDetails: {
+    transactionId: string;
+    date: string;
+    reference: string;
+    notes?: string;
+  };
+
 }
 
 export async function getWithdrawals() {
-  try {
-    const { userId } = await requireAuth();
+    const { id: userId } = await requireAuth();
 
     const withdrawals = await prisma.withdrawal.findMany({
       where: {
@@ -39,58 +45,44 @@ export async function getWithdrawals() {
       amount: withdrawal.amount,
       status: withdrawal.status,
       createdAt: withdrawal.createdAt,
-      bankDetails: JSON.parse(withdrawal.bankDetails)
+      bankDetails: JSON.parse(withdrawal.bankDetails),
+      transactionDetails: JSON.parse(withdrawal.transactionDetails ?? '{}')
     }));
-  } catch (error) {
-    if (error instanceof AuthError) {
-      throw error;
-    }
-    console.error('Error fetching withdrawals:', error);
-    throw new Error('Failed to fetch withdrawals');
-  }
 }
 
 export async function requestWithdrawal(data: WithdrawalRequest) {
-  try {
-    const { userId } = await requireAuth();
+  
+  const { id: userId } = await requireAuth();
 
-    // Get user's current balance
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
+  // Get user's current balance
+  const user = await prisma.user.findUnique({
+    where: { id: userId }
+  });
 
-    if (!user || user.balance < data.amount) {
-      throw new Error('Insufficient balance');
-    }
-
-    // Create withdrawal request
-    const withdrawal = await prisma.withdrawal.create({
-      data: {
-        userId,
-        amount: data.amount,
-        bankDetails: JSON.stringify(data.bankDetails)
-      }
-    });
-
-    // Deduct amount from user's balance
-    await prisma.user.update({
-      where: { id: userId },
-      data: { balance: user.balance - data.amount }
-    });
-
-    return withdrawal;
-  } catch (error) {
-    if (error instanceof AuthError) {
-      throw error;
-    }
-    console.error('Error requesting withdrawal:', error);
-    throw new Error('Failed to request withdrawal');
+  if (!user || user.balance < data.amount) {
+    throw new Error('Insufficient balance');
   }
+
+  // Create withdrawal request
+  const withdrawal = await prisma.withdrawal.create({
+    data: {
+      userId,
+      amount: data.amount,
+      bankDetails: JSON.stringify(data.bankDetails)
+    }
+  });
+
+  // Deduct amount from user's balance
+  await prisma.user.update({
+    where: { id: userId },
+    data: { balance: user.balance - data.amount }
+  });
+
+  return withdrawal;
 }
 
 export async function getUserBalance() {
-  try {
-    const { userId } = await requireAuth();
+  const { id: userId } = await requireAuth();
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -153,18 +145,10 @@ export async function getUserBalance() {
     });
 
     return calculatedBalance;
-  } catch (error) {
-    if (error instanceof AuthError) {
-      throw error;
-    }
-    console.error('Error fetching user balance:', error);
-    throw new Error('Failed to fetch user balance');
-  }
 }
 
 export async function deleteWithdrawal(withdrawalId: string) {
-  try {
-    const { userId } = await requireAuth();
+  const { id: userId } = await requireAuth();
 
     // Find the withdrawal and verify ownership
     const withdrawal = await prisma.withdrawal.findUnique({
@@ -201,11 +185,4 @@ export async function deleteWithdrawal(withdrawalId: string) {
     ]);
 
     return { success: true };
-  } catch (error) {
-    if (error instanceof AuthError) {
-      throw error;
-    }
-    console.error('Error deleting withdrawal:', error);
-    throw new Error('Failed to delete withdrawal');
-  }
 } 

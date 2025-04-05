@@ -1,26 +1,11 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
-import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { BrandHeader } from '@/components/brand-header';
+import { BrandHeader } from '@/components/header/brand-header';
 import { FileText, Globe, Monitor } from 'lucide-react';
+import { auth } from '@/lib/auth';
 
-export default function Home() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/dashboard');
-    }
-  }, [status, router]);
-
-  if (status === 'loading') {
-    return <div>Loading...</div>;
-  }
+export default async function Home() {
+  const user = await auth()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
@@ -39,19 +24,24 @@ export default function Home() {
               Your creativity, your earnings - keep 100% of what you make.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start">
-              <Link href="/signup" className="w-full sm:w-auto">
+              {user?.id
+              ? (<Link href="/dashboard" className="w-full sm:w-auto">
                 <Button className="bg-white text-purple-600 hover:bg-white/90 text-lg px-8 py-6 w-full sm:w-auto">
-                  Start Selling
+                  Go to Dashboard
                 </Button>
-              </Link>
-              <Link href="/login" className="w-full sm:w-auto">
-                <Button 
-                  variant="outline" 
-                  className="bg-white/10 border-white text-white hover:bg-white/20 text-lg px-8 py-6 w-full sm:w-auto"
-                >
-                  Sign In
-                </Button>
-              </Link>
+              </Link>)
+              : (<><Link href="/signup" className="w-full sm:w-auto">
+                  <Button className="bg-white text-purple-600 hover:bg-white/90 text-lg px-8 py-6 w-full sm:w-auto">
+                    Start Selling
+                  </Button>
+                </Link><Link href="/login" className="w-full sm:w-auto">
+                    <Button
+                      variant="outline"
+                      className="bg-white/10 border-white text-white hover:bg-white/20 text-lg px-8 py-6 w-full sm:w-auto"
+                    >
+                      Sign In
+                    </Button>
+                  </Link></>)}
             </div>
           </div>
           <div className="flex-1 h-[250px] sm:h-[300px] md:h-[400px] w-full max-w-[500px] mx-auto relative">
@@ -92,7 +82,7 @@ export default function Home() {
         </div>
       </main>
 
-      <style jsx global>{`
+      <style>{`
         @keyframes float {
           0% { transform: translateY(0px); }
           50% { transform: translateY(-20px); }

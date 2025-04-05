@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/lib/auth';
+import { auth, requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 export interface SaleData {
   date: string;
@@ -17,8 +17,8 @@ export interface RecentSale {
 
 export async function getSalesData(timeframe: 'day' | 'month' | 'year') {
   try {
-    const session = await auth();
-    const userId = session?.user.id;
+    const user = await requireAuth();
+    const userId = user.id;
     const today = new Date();
     let startDate: Date;
 
@@ -87,8 +87,8 @@ export async function getSalesData(timeframe: 'day' | 'month' | 'year') {
 
 export async function getRecentSales(limit: number = 10) {
   try {
-    const session = await auth();
-    const userId = session?.user.id;
+    const user = await requireAuth();
+    const userId = user.id;
     const recentSales = await prisma.sale.findMany({
       where: {
         sellerId: userId,

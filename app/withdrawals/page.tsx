@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Header } from '@/components/header';
+import { Header } from '@/components/header/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,7 +15,8 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Info } from 'lucide-react';
+import { TransactionDetailsDialog } from '@/components/withdrawals/transaction-details-dialog';
 
 const withdrawalSchema = z.object({
   amount: z.number()
@@ -40,6 +41,8 @@ export default function WithdrawalsPage() {
   const [balance, setBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<Withdrawal | null>(null);
+  const [showTransactionDialog, setShowTransactionDialog] = useState(false);
 
   const form = useForm<WithdrawalFormValues>({
     resolver: zodResolver(withdrawalSchema),
@@ -106,6 +109,11 @@ export default function WithdrawalsPage() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to delete withdrawal');
     }
+  };
+
+  const openTransactionDetails = (withdrawal: Withdrawal) => {
+    setSelectedWithdrawal(withdrawal);
+    setShowTransactionDialog(true);
   };
 
   return (
@@ -234,13 +242,23 @@ export default function WithdrawalsPage() {
                         ${withdrawal.amount.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                          ${withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            withdrawal.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            withdrawal.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                            'bg-blue-100 text-blue-800'}`}>
-                          {withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
-                        </span>
+                        <div className="flex items-center space-x-1">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${withdrawal.status === 'completed' ? 'bg-green-100 text-green-800' :
+                              withdrawal.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              withdrawal.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-blue-100 text-blue-800'}`}>
+                            {withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
+                          </span>
+                          {withdrawal.status === 'completed' && withdrawal.transactionDetails && (
+                            <button 
+                              onClick={() => openTransactionDetails(withdrawal)}
+                              className="text-blue-500 hover:text-blue-700 focus:outline-none"
+                            >
+                              <Info className="h-4 w-4 cursor-pointer" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {withdrawal.status === 'pending' && (
@@ -262,6 +280,12 @@ export default function WithdrawalsPage() {
           </Card>
         </div>
       </main>
+
+      <TransactionDetailsDialog 
+        open={showTransactionDialog} 
+        onOpenChange={setShowTransactionDialog} 
+        withdrawal={selectedWithdrawal} 
+      />
     </div>
   );
 } 

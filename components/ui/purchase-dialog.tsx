@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { Button } from './button';
 import { Card } from './card';
 import { Input } from './input';
 import { Label } from './label';
+import { useUser } from '@/hooks/use-user';
 
 type PurchaseDialogProps = {
   isOpen: boolean;
@@ -27,7 +27,7 @@ export function PurchaseDialog({
 }: PurchaseDialogProps) {
   const [purchaseType, setPurchaseType] = useState<'anonymous' | 'login' | null>(null);
   const router = useRouter();
-  const { data: session } = useSession();
+  const user = useUser();
 
   if (!isOpen) return null;
 
@@ -36,7 +36,7 @@ export function PurchaseDialog({
   };
 
   const handleLoginPurchase = () => {
-    if (session) {
+    if (user) {
       onPurchase(false);
     } else {
       router.push(`/login?redirect=/shop/${sellerId}/${productId}`);
