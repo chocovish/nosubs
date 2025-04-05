@@ -70,7 +70,7 @@ export default function SalesDashboard() {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-md md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Sales Dashboard
             </h1>
             <div className="flex items-center gap-4">
@@ -87,7 +87,7 @@ export default function SalesDashboard() {
               </Card>
               <Button 
                 onClick={() => router.push('/withdrawals')}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all"
+                className="bg-gradient-to-tr from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all"
               >
                 Withdraw Funds
               </Button>

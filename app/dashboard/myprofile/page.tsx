@@ -1,5 +1,5 @@
 import { ProfileForm } from "@/components/profile-form";
 
-export default function MyProfile() {
+export default async function MyProfile() {
   return <ProfileForm />;
 }

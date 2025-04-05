@@ -112,14 +112,14 @@ export function Header() {
             <UserCircle2 className="w-5 h-5" />
             <span>My Profile</span>
           </Link>
-            <Button
-              variant="ghost"
-              className="flex pl-0 items-center space-x-2 text-gray-700 hover:text-red-600 hover:bg-red-50"
+            <Link
+              href="#"
+              className="cursor-pointer flex pl-0 items-center space-x-2 text-gray-700 hover:text-red-600"
               onClick={handleSignOut}
             >
               <LogOut className="w-5 h-5" />
               <span>Sign Out</span>
-            </Button>
+            </Link>
         </nav>
       </div>
     </header>
