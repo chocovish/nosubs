@@ -20,7 +20,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ShoppingCart, LayoutGrid, User, Mail, Lock } from 'lucide-react'
-import { BrandLogo } from '@/components/header/brand-logo'
 
 const signUpSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
