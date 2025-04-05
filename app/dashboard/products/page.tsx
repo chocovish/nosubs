@@ -111,8 +111,6 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="container mx-auto md:p-4">
           <div className="flex justify-between items-center mb-6">
@@ -215,6 +213,5 @@ export default function ProductsPage() {
           </DragDropContext>
         </div>
       </main>
-    </div>
   );
 }

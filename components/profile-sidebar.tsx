@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 import { UserCircle, CreditCard, ShoppingBag } from "lucide-react";
 
 const navigation = [
-  { name: "Profile Info", href: "/myprofile", icon: UserCircle },
-  { name: "Payment Methods", href: "/myprofile/payment", icon: CreditCard },
-  { name: "Purchases", href: "/myprofile/purchases", icon: ShoppingBag },
+  { name: "Profile Info", href: "/dashboard/myprofile", icon: UserCircle },
+  { name: "Payment Methods", href: "/dashboard/myprofile/payment", icon: CreditCard },
+  { name: "Purchases", href: "/dashboard/myprofile/purchases", icon: ShoppingBag },
 ];
 
 export function ProfileSidebar() {

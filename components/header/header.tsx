@@ -35,7 +35,7 @@ export function Header() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push('/login');
+    router.push('/');
   };
 
   return (
@@ -98,7 +98,7 @@ export function Header() {
               )}
             </Tooltip>
           </TooltipProvider>
-          <Link href="/myprofile" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+          <Link href="/dashboard/myprofile" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
             <UserCircle2 className="w-5 h-5" />
             <span>My Profile</span>
           </Link>

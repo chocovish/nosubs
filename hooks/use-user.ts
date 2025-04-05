@@ -5,18 +5,18 @@ import { use, useEffect, useState } from "react";
 import { User as UserProfile } from "@prisma/client";
 
 export const useUser = () => {
-    const [user, setUser] = useState<User | null>(null);
-    useEffect(() => {
-        const fetchUserImage = async () => {
-          const { data, error } = await createClient().auth.getSession()
-          if (error) {
-            console.error(error)
-          }
-          if (data.session?.user) setUser(data.session?.user)
-        }
-        fetchUserImage()
-      }, [])
-      return user;
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data, error } = await createClient().auth.getSession()
+      if (error) {
+        console.error(error)
+      }
+      if (data.session?.user) setUser(data.session?.user)
+    }
+    fetchUser()
+  }, [])
+  return user;
 };
 
 export const useUserProfile = () => {
