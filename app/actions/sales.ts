@@ -52,7 +52,7 @@ export async function getSalesData(timeframe: 'day' | 'month' | 'year') {
     // Format the data based on timeframe
     const formattedSales = sales.reduce<SaleData[]>((acc, sale) => {
       const date = new Date(sale.createdAt);
-      let dateKey = dateKeyMaker(timeframe, date);
+      const dateKey = dateKeyMaker(timeframe, date);
 
       const existingEntry = acc.find(entry => entry.date === dateKey);
       if (existingEntry) {
