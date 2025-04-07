@@ -5,6 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { UserCircle, CreditCard, ShoppingBag } from "lucide-react";
 import { PathNameProvider } from "./layout-client";
+import { Metadata } from "next/types";
+
+export const metadata: Metadata = {
+  title: "My profile - noSubs",
+  description: "get paid for your digital products without the hassle of subscriptions",
+};
 
 export default async function MyProfileLayout({
   children,
