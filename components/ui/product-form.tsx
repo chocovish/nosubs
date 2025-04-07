@@ -226,7 +226,7 @@ export function ProductForm({ initialData, onSubmit, onClose, mode }: ProductFor
                         <DropzoneInput {...field} />
                         <DropzoneGroup className="gap-4">
                           {filePreview ? (
-                            <div className="flex items-center justify-center space-x-2">
+                            <div className="flex max-w-full  truncate items-center justify-center space-x-2">
                               {filePreview}
                             </div>
                           ) : (

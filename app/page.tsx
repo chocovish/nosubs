@@ -80,6 +80,19 @@ export default async function Home() {
             <p className="text-white/70 text-sm sm:text-base">Your content is safe with us.</p>
           </div>
         </div>
+        
+        {/* Footer Links */}
+        <footer className="mt-auto py-6 text-center">
+          <div className="flex justify-center items-center gap-4 text-white/80 text-sm">
+            <Link href="/terms" className="hover:text-white hover:underline transition">
+              Terms & Conditions
+            </Link>
+            <span>•</span>
+            <Link href="/privacy" className="hover:text-white hover:underline transition">
+              Privacy Policy
+            </Link>
+          </div>
+        </footer>
       </main>
 
       <style>{`

@@ -1,9 +1,16 @@
+"use client";
+import { LoaderSkeleton } from "@/components/dashboard/loader-skeletone";
 import PurchaseDashboard from "./purchase-dashboard";
 import SalesDashboard from "./sales-dashboard";
-import { getUserProfile } from "../actions/profile";
+import { useUserProfile } from "@/hooks/use-user";
 
-export default async function DashboardPage() {
-    const userProfile = await getUserProfile();
+export default function DashboardPage() {
+    const {userProfile, isLoading} = useUserProfile();
+
+    if (isLoading) {
+        return <LoaderSkeleton />
+    }
+
     if (userProfile?.userType === "buyer") {
         return <PurchaseDashboard />
     } else if (userProfile?.userType === "seller") {

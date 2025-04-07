@@ -25,10 +25,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { LoaderSkeleton } from '../dashboard/loader-skeletone';
 
 export function Header() {
   const user = useUser();
-  const profile = useUserProfile();
+  const {userProfile: profile, isLoading} = useUserProfile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -39,7 +40,8 @@ export function Header() {
   };
 
   // Check if user type is buyer
-  const isBuyer = profile?.userType === "buyer";
+  const isBuyer = profile?.userType !== "seller";
+
 
   return (
     <header className="w-full border-b bg-gradient-to-r from-white via-purple-50 to-white shadow-sm">

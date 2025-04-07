@@ -5,12 +5,6 @@ import { requireAuth } from '@/lib/auth';
 
 export interface WithdrawalRequest {
   amount: number;
-  bankDetails: {
-    accountNumber: string;
-    ifscCode: string;
-    accountHolderName: string;
-    bankName: string;
-  };
 }
 
 export interface Withdrawal {
@@ -25,7 +19,6 @@ export interface Withdrawal {
     reference: string;
     notes?: string;
   };
-
 }
 
 export async function getWithdrawals() {
@@ -63,12 +56,21 @@ export async function requestWithdrawal(data: WithdrawalRequest) {
     throw new Error('Insufficient balance');
   }
 
+  // Get user's payment method
+  const paymentMethod = await prisma.paymentMethod.findUnique({
+    where: { userId }
+  });
+
+  if (!paymentMethod) {
+    throw new Error('No payment method found. Please add a payment method in your profile settings.');
+  }
+
   // Create withdrawal request
   const withdrawal = await prisma.withdrawal.create({
     data: {
       userId,
       amount: data.amount,
-      bankDetails: JSON.stringify(data.bankDetails)
+      bankDetails: JSON.stringify(paymentMethod.details)
     }
   });
 

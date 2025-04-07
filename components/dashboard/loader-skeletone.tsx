@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-
-export default function Loading() {
+export function LoaderSkeleton() {
     return (
         <div className="space-y-6 p-6">
             {/* Header Skeleton */}

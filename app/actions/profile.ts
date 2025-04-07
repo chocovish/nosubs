@@ -28,21 +28,38 @@ export async function updatePaymentMethod(data: unknown) {
 
   const validatedData = paymentMethodSchema.parse(data);
 
-  await prisma.paymentMethod.upsert({
-    where: { userId: user.id },
-    update: {
-      ...validatedData,
-      details: validatedData.details,
-    },
-    create: {
-      ...validatedData,
-      details: validatedData.details,
-      userId: user.id,
-    },
+  // Use a transaction to ensure both operations succeed or fail together
+  const result = await prisma.$transaction(async (tx) => {
+    // Update or create payment method
+    const paymentMethod = await tx.paymentMethod.upsert({
+      where: { userId: user.id },
+      update: {
+        ...validatedData,
+        details: validatedData.details,
+      },
+      create: {
+        ...validatedData,
+        details: validatedData.details,
+        userId: user.id,
+      },
+    });
+
+    // Create history entry
+    await tx.paymentMethodHistory.create({
+      data: {
+        paymentMethodId: paymentMethod.id,
+        type: validatedData.type,
+        details: validatedData.details,
+      },
+    });
+
+    return paymentMethod;
   });
 
   revalidatePath("/myprofile");
+  return result;
 }
+
 export async function getPaymentMethod() {
   const user = await auth();
   if (!user?.id) {
@@ -53,7 +70,7 @@ export async function getPaymentMethod() {
     where: { userId: user.id }
   });
   return method;
-} 
+}
 
 export async function getUserProfile(){
   const user = await auth();
@@ -73,4 +90,27 @@ export async function getUserBySlug(slug: string) {
     select: { id: true }
   });
   return user?.id;
+}
+
+export async function getPaymentMethodHistory() {
+  const user = await auth();
+  if (!user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const history = await prisma.paymentMethodHistory.findMany({
+    where: {
+      paymentMethod: {
+        userId: user.id,
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      paymentMethod: true,
+    },
+  });
+
+  return history;
 }

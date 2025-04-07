@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { paymentMethodSchema } from "@/lib/validations/profile";
-import { updatePaymentMethod, getPaymentMethod } from "@/app/actions/profile";
+import { updatePaymentMethod, getPaymentMethod, getPaymentMethodHistory } from "@/app/actions/profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -16,31 +16,42 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Building, CreditCard, Landmark, QrCode } from "lucide-react";
+import { Building, CreditCard, Landmark, QrCode, History } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 type PaymentMethodFormValues = z.infer<typeof paymentMethodSchema>;
 
 export function PaymentMethodForm() {
-  const paymentMethodUpdateHistory : PaymentMethodFormValues[] = [];
+  const queryClient = useQueryClient();
   const [paymentType, setPaymentType] = useState<"bank" | "upi">("bank");
   
-  useEffect(() => {
-    loadPaymentMethod();
-  }, []);
+  // Fetch payment method
+  const { data: paymentMethod } = useQuery({
+    queryKey: ['paymentMethod'],
+    queryFn: getPaymentMethod
+  });
 
-  const loadPaymentMethod = async () => {
-    try {
-      const method = await getPaymentMethod();
-      if(method) {
-        form.reset(method);
-        setPaymentType(method.type as "bank" | "upi");
-      }
-    } catch (error) {
-      toast.error("Failed to load payment methods");
+  // Fetch payment method history
+  const { data: history = [], isLoading: isHistoryLoading } = useQuery({
+    queryKey: ['paymentMethodHistory'],
+    queryFn: getPaymentMethodHistory
+  });
+
+  // Update payment method mutation
+  const updateMutation = useMutation({
+    mutationFn: updatePaymentMethod,
+    onSuccess: () => {
+      toast.success("Payment method updated successfully");
+      queryClient.invalidateQueries({ queryKey: ['paymentMethod'] });
+      queryClient.invalidateQueries({ queryKey: ['paymentMethodHistory'] });
+    },
+    onError: () => {
+      toast.error("Failed to update payment method");
     }
-  };
+  });
 
   const form = useForm<PaymentMethodFormValues>({
     resolver: zodResolver(paymentMethodSchema),
@@ -48,6 +59,13 @@ export function PaymentMethodForm() {
       type: "bank"
     },
   });
+
+  useEffect(() => {
+    if (paymentMethod) {
+      form.reset(paymentMethod);
+      setPaymentType(paymentMethod.type as "bank" | "upi");
+    }
+  }, [paymentMethod, form]);
 
   // Handle tab change
   const handleTabChange = (value: string) => {
@@ -57,15 +75,22 @@ export function PaymentMethodForm() {
     }
   };
 
-  const onSubmit = async (data: PaymentMethodFormValues) => {
-    try {
-      await updatePaymentMethod(data);
-      toast("Payment method added successfully");
-      loadPaymentMethod();
-      form.reset();
-    } catch (error) {
-      console.error("Failed to add payment method:", error);
-      toast("Failed to add payment method");
+  const onSubmit = (data: PaymentMethodFormValues) => {
+    updateMutation.mutate(data);
+  };
+
+  const getPaymentMethodDetails = (details: any) => {
+    if (paymentType === "bank") {
+      return {
+        accountNumber: details.accountNumber,
+        accountName: details.accountName,
+        bankName: details.bankName,
+        ifscCode: details.ifscCode,
+      };
+    } else {
+      return {
+        upiId: details.upiId,
+      };
     }
   };
 
@@ -76,7 +101,7 @@ export function PaymentMethodForm() {
           <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 flex items-center h-16">
             <CardTitle className="text-white flex items-center gap-2 text-lg">
               <CreditCard className="h-5 w-5" />
-              Add New Payment Method
+              Update Payment Method
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -216,7 +241,7 @@ export function PaymentMethodForm() {
                   ) : (
                     <span className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4" />
-                      Add Payment Method
+                      Update Payment Method
                     </span>
                   )}
                 </Button>
@@ -228,18 +253,60 @@ export function PaymentMethodForm() {
         <Card className="border-none shadow-md bg-gradient-to-br from-white to-purple-50 overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-purple-500 to-blue-500 flex items-center h-16">
             <CardTitle className="text-white flex items-center gap-2 text-lg">
-              <Building className="h-5 w-5" />
-              Saved Payment Methods
+              <History className="h-5 w-5" />
+              Update History
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="space-y-4 min-h-[200px] flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <QrCode className="h-16 w-16 mx-auto mb-3 text-gray-300" />
-                <p className="text-sm">No payment methods saved yet</p>
-                <p className="text-xs mt-1">Add a payment method to see it here</p>
+            {isHistoryLoading ? (
+              <div className="text-center py-4">
+                <div className="animate-spin w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full mx-auto"></div>
+                <p className="text-gray-500 mt-2">Loading history...</p>
               </div>
-            </div>
+            ) : history.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">
+                <QrCode className="h-16 w-16 mx-auto mb-3 text-gray-300" />
+                <p className="text-sm">No payment method history yet</p>
+                <p className="text-xs mt-1">Add a payment method to see history here</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {history.map((entry) => {
+                  const details = getPaymentMethodDetails(entry.details);
+                  return (
+                    <div key={entry.id} className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {entry.type === "bank" ? (
+                            <Landmark className="h-4 w-4 text-blue-600" />
+                          ) : (
+                            <QrCode className="h-4 w-4 text-purple-600" />
+                          )}
+                          <span className="text-sm font-medium text-gray-700">
+                            {entry.type === "bank" ? "Bank Account" : "UPI"}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {format(new Date(entry.createdAt), 'PPP')}
+                        </span>
+                      </div>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        {entry.type === "bank" ? (
+                          <>
+                            <p>Account Number: {details.accountNumber}</p>
+                            <p>Account Name: {details.accountName}</p>
+                            <p>Bank Name: {details.bankName}</p>
+                            <p>IFSC Code: {details.ifscCode}</p>
+                          </>
+                        ) : (
+                          <p>UPI ID: {details.upiId}</p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -21,6 +21,8 @@ import {
   Wallet
 } from 'lucide-react';
 import { dateKeyMaker } from '@/lib/utils';
+import Link from 'next/link';
+import { LoaderSkeleton } from '@/components/dashboard/loader-skeletone';
 
 export default function SalesDashboard() {
   const router = useRouter();
@@ -96,6 +98,12 @@ export default function SalesDashboard() {
     setSalesLimit(newLimit);
   };
 
+  if (isLoading) {
+    return (<main className="container mx-auto px-4 py-8">
+      <LoaderSkeleton />
+    </main>);
+  }
+
   return (
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -115,12 +123,13 @@ export default function SalesDashboard() {
                   </div>
                 </div>
               </Card>
-              <Button 
-                onClick={() => router.push('/withdrawals')}
+              <Link href="/dashboard/myprofile/withdrawals">
+              <Button
                 className="bg-gradient-to-tr from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all"
               >
                 Withdraw Funds
-              </Button>
+              </Button></Link>
+              
             </div>
           </div>
           {/* Time Controls */}

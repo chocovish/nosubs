@@ -89,4 +89,14 @@ model PaymentMethod {
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  history     PaymentMethodHistory[]
+}
+
+model PaymentMethodHistory {
+  id              String   @id @default(cuid())
+  paymentMethodId String
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  type            String   // "bank" or "upi"
+  details         Json     // Store payment details as JSON
+  createdAt       DateTime @default(now())
 }

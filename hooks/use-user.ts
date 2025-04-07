@@ -8,6 +8,6 @@ export const useUser = () => {
 };
 
 export const useUserProfile = () => {
-  const { data: profile } = useUserProfileQuery();
-  return profile;
+  const { data: profile, isLoading } = useUserProfileQuery();
+  return { userProfile: profile, isLoading };
 };
