@@ -115,14 +115,17 @@ export default function ProductsPage() {
         <div className="container mx-auto md:p-4">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Manage Products</h1>
-            <Button onClick={() => {
-                setIsEditing('new')
-              }}>Add Product</Button>
+            <Button variant="gradient" onClick={() => {
+              if (isEditing === 'new') {
+                setIsEditing(null);
+              } else {
+                setIsEditing('new');
+              }
+            }}>Add Product</Button>
           </div>
-          {isEditing && ( 
+          {isEditing === "new" && ( 
             <ProductForm
-              mode={isEditing === 'new' ? 'create' : 'edit'}
-              initialData={isEditing === 'new' ? undefined : products.find(p => p.id === isEditing)}
+              mode="create"
               onSubmit={handleSave}
               onClose={() => setIsEditing(null)}
             />

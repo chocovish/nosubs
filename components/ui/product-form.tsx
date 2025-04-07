@@ -251,7 +251,8 @@ export function ProductForm({ initialData, onSubmit, onClose, mode }: ProductFor
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2 px-4 rounded-md transition-all duration-300 transform hover:scale-[1.02]"
+            className="w-full"
+            variant="gradient2"
           >
             {mode === 'create' ? 'Create Product' : 'Update Product'}
           </Button>
